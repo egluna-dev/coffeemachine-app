@@ -1,36 +1,5 @@
 from art import logo
-
-MENU = {
-    "espresso": {
-        "ingredients": {
-            "water": 50,
-            "coffee": 18,
-        },
-        "cost": 1.5,
-    },
-    "latte": {
-        "ingredients": {
-            "water": 200,
-            "milk": 150,
-            "coffee": 24,
-        },
-        "cost": 2.5,
-    },
-    "cappuccino": {
-        "ingredients": {
-            "water": 250,
-            "milk": 100,
-            "coffee": 24,
-        },
-        "cost": 3.0,
-    }
-}
-
-resources = {
-    "water": 300,
-    "milk": 200,
-    "coffee": 100,
-}
+from menu import MENU, resources
 
 # TODO: 1. Prompt user by asking 'What would you like? Espressor, latte or capuccino?'. Print drink menu with prices.
 
@@ -69,32 +38,57 @@ def money_calculator(num_quarters, num_dimes, num_nickels, num_pennies):
         float(num_nickels) * 0.05 + float(num_pennies) * 0.01
     return total
 
+# Function takes sum total of money entered as input and outputs the calculated change if money is more than the price of the coffee
+
+
+def change_calculator(money, coffee_price):
+    change = money - coffee_price
+
+    if change > 0:
+        return round(change, 2)
+    elif change < 0:
+        return "Sorry, that's not enough money. Money refunded"
+
+# Function handles money input and outputs the number of quarters, dimes, nickels and pennies
+
+
+def accept_money():
+    print("Please insert coins.\n")
+    quarters = input("How many quarters? ")
+    dimes = input("How many dimes? ")
+    nickels = input("How many nickels? ")
+    pennies = input("How many pennies? ")
+
+    return quarters, dimes, nickels, pennies
+
 
 # Function initializes coffee machine
 def coffee_machine_init():
     program_on = True
     coffee_machine_off = False
 
-    while not coffee_machine_off:
-        print(menu())
-        user_input = input("What would you like?: ")
+    water_remaining = resources["water"]
+    milk_remaining = resources["milk"]
+    coffee_remaining = resources["coffee"]
 
-        while program_on:
+    while program_on:
+
+        while not coffee_machine_off:
+            print(menu())
+            user_input = input("What would you like?: ")
 
             if user_input == "espresso":
                 # Function will be called which will check if there are sufficient resources to make the drink
-                print("Please insert coins.\n")
-                quarters = input("How many quarters? ")
-                dimes = input("How many dimes? ")
-                nickels = input("How many nickels? ")
-                pennies = input("How many pennies? ")
+                quarters, dimes, nickels, pennies = accept_money()
+
                 sum_total = money_calculator(
                     num_quarters=quarters, num_dimes=dimes, num_nickels=nickels, num_pennies=pennies)
-                espresso_price = espresso_cost = MENU["espresso"]["cost"]
+                espresso_price = MENU["espresso"]["cost"]
 
-                if sum_total < espresso_price:
-                    print("Sorry, that's not enough money. Money refunded")
+                print(
+                    f"Your change: {change_calculator(sum_total, espresso_price)}")
                 print(sum_total)
+                print(f"Water: {resources}")
 
             elif user_input == "latte":
                 print("latte")
