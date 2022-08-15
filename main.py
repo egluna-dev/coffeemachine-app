@@ -1,4 +1,4 @@
-from art import logo
+from logo import logo
 from menu import MENU, resources
 
 
