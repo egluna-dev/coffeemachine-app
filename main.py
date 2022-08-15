@@ -1,6 +1,7 @@
 from art import logo
 from menu import MENU, resources
 
+
 # TODO: 1. Prompt user by asking 'What would you like? Espressor, latte or capuccino?'. Print drink menu with prices.
 
 # TODO: 2. Turn of the coffee machine by entering off to the prompt
@@ -18,6 +19,11 @@ from menu import MENU, resources
 #           resources. A report will be created before and after creating the drink. b. Once the drink is created, the program
 #           will print "Here is your {drink}. Enjoy!"
 
+# GLOBAL VARIABLE
+profit_sum = 0
+
+# Function prints menu to display to customer
+
 
 def menu():
     espresso_cost = MENU["espresso"]["cost"]
@@ -25,7 +31,6 @@ def menu():
     cappuccino_cost = MENU["cappuccino"]["cost"]
     menu = "Espresso: $" + str(espresso_cost) + "\nLatte: $" + \
         str(latte_cost) + "\nCappuccino: $" + str(cappuccino_cost) + "\n"
-    print(logo)
     print("Welcome to Coffee Express!\nPlease have a look at our money and make a selection.")
     return menu
     # return "Espresso: $" + str(espresso_cost) + "\nLatte: $" + str(latte_cost) + "\nCappuccino: $" + str(cappuccino_cost) + "\n"
@@ -33,74 +38,81 @@ def menu():
 # Function calculates how much money the user has given the machine
 
 
-def money_calculator(num_quarters, num_dimes, num_nickels, num_pennies):
-    total = float(num_quarters) * 0.25 + float(num_dimes) * 0.1 + \
-        float(num_nickels) * 0.05 + float(num_pennies) * 0.01
+def money_calculator():
+    num_quarters = int(input("Number of quarters: ")) * 0.25
+    num_dimes = int(input("Number of dimes: ")) * 0.10
+    num_nickels = int(input("Number of nickels: ")) * 0.05
+    num_pennies = int(input("Number of pennies: ")) * 0.01
+    total = num_quarters + num_dimes + num_nickels + num_pennies
     return total
 
-# Function takes sum total of money entered as input and outputs the calculated change if money is more than the price of the coffee
+# Function checks if the current resources are sufficient to make the drink
 
 
-def change_calculator(money, coffee_price):
-    change = money - coffee_price
-
-    if change > 0:
-        return round(change, 2)
-    elif change < 0:
-        return "Sorry, that's not enough money. Money refunded"
+def resources_sufficient(drink_ingredients):
+    for ingredient in drink_ingredients:
+        if drink_ingredients[ingredient] > resources[ingredient]:
+            print(
+                f"Not enough resources to make your drink. More {ingredient} required")
+            return False
+        else:
+            return True
 
 # Function handles money input and outputs the number of quarters, dimes, nickels and pennies
 
 
-def accept_money():
-    print("Please insert coins.\n")
-    quarters = input("How many quarters? ")
-    dimes = input("How many dimes? ")
-    nickels = input("How many nickels? ")
-    pennies = input("How many pennies? ")
+def transaction_successful(money_inserted, drink_price):
+    if money_inserted >= drink_price:
+        change = round(money_inserted - drink_price, 2)
+        print(f"Here is your change: ${change}")
+        global profit_sum
+        profit_sum += drink_price
+        return True
+    else:
+        print(
+            "Sorry, that's not enough money. The drink is ${drink_price}. Money refunded.\n")
 
-    return quarters, dimes, nickels, pennies
+
+# Function creates report of current machine resources
+
+
+def print_report(current_resources):
+    for resource in current_resources:
+        if resource == "water" or resource == "milk":
+            print(f"{resource}: {current_resources[resource]}ml")
+        else:
+            print(f"{resource}: {current_resources[resource]}g")
+
+
+# Function takes the drink as input and subtracts the required ingredients from the current resources
+
+
+def make_coffee(drink_selected, ingredients):
+    for ingredient in ingredients:
+        resources[ingredient] -= ingredients[ingredient]
+    print(f"Here is your {drink_selected}, enjoy!")
 
 
 # Function initializes coffee machine
-def coffee_machine_init():
-    program_on = True
-    coffee_machine_off = False
+program_on = True
 
-    water_remaining = resources["water"]
-    milk_remaining = resources["milk"]
-    coffee_remaining = resources["coffee"]
+water_remaining = resources["water"]
+milk_remaining = resources["milk"]
+coffee_remaining = resources["coffee"]
 
-    while program_on:
+print(logo)
 
-        while not coffee_machine_off:
-            print(menu())
-            user_input = input("What would you like?: ")
+while program_on:
+    menu()
+    selection = input("What would you like?: ")
 
-            if user_input == "espresso":
-                # Function will be called which will check if there are sufficient resources to make the drink
-                quarters, dimes, nickels, pennies = accept_money()
-
-                sum_total = money_calculator(
-                    num_quarters=quarters, num_dimes=dimes, num_nickels=nickels, num_pennies=pennies)
-                espresso_price = MENU["espresso"]["cost"]
-
-                print(
-                    f"Your change: {change_calculator(sum_total, espresso_price)}")
-                print(sum_total)
-                print(f"Water: {resources}")
-
-            elif user_input == "latte":
-                print("latte")
-            elif user_input == "cappuccino":
-                print("cappuccino")
-            else:
-                print("Please enter either 'espresso', 'latte', or 'cappuccino'.\n")
-                program_on = False
-
-
-start_coffee_machine = input(
-    "Turn on coffee machine? Type 'y' if yes and 'n' if no.\n")
-
-if start_coffee_machine == 'y':
-    coffee_machine_init()
+    if selection == "off":
+        program_on = False
+    elif selection == "report":
+        print_report(resources)
+    else:
+        drink = MENU[selection]
+        if resources_sufficient(drink["ingredients"]):
+            payment = money_calculator()
+            if transaction_successful(payment, drink["cost"]):
+                make_coffee(selection, drink["ingredients"])
