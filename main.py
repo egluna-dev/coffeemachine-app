@@ -53,7 +53,7 @@ def resources_sufficient(drink_ingredients):
     for ingredient in drink_ingredients:
         if drink_ingredients[ingredient] > resources[ingredient]:
             print(
-                f"Not enough resources to make your drink. More {ingredient} required")
+                f"Not enough resources to make your drink. More {ingredient} required.")
             return False
         else:
             return True
@@ -76,12 +76,15 @@ def transaction_successful(money_inserted, drink_price):
 # Function creates report of current machine resources
 
 
-def print_report(current_resources):
+def print_report(current_resources, money_available):
     for resource in current_resources:
-        if resource == "water" or resource == "milk":
-            print(f"{resource}: {current_resources[resource]}ml")
+        if resource == "water":
+            print(f"W{resource[1:]}: {current_resources[resource]}ml")
+        elif resource == "milk":
+            print(f"M{resource[1:]}: {current_resources[resource]}ml")
         else:
-            print(f"{resource}: {current_resources[resource]}g")
+            print(f"C{resource[1:]}: {current_resources[resource]}g")
+    print(f"Money: ${money_available}")
 
 
 # Function takes the drink as input and subtracts the required ingredients from the current resources
@@ -109,7 +112,7 @@ while program_on:
     if selection == "off":
         program_on = False
     elif selection == "report":
-        print_report(resources)
+        print_report(resources, money_available=profit_sum)
     else:
         drink = MENU[selection]
         if resources_sufficient(drink["ingredients"]):
